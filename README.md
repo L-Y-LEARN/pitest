@@ -139,7 +139,7 @@ telemetry → schema → chord → tui → codemode → mcp → ai → durable �
 | `schema` | `tsc -p tsconfig.build.json`；生成 `dist/` 下的 `index`、`builders`、`compiler`、`validator`、`formats/*` 等 JS 与声明文件。`ajv`、`zod`、`typebox` 等只在 `devDependencies`，用于测试对照，不进入运行时 |
 | `chord` | `tsc -p tsconfig.build.json`；生成 `dist/` 及大量子路径入口（`/http`、`/workers`、`/plugins`、`/app`、`/web`、`/react`、`/tui`、`/sqlite` 等）。不做 bundling，不复制静态资源 |
 | `tui` | `tsc -p tsconfig.build.json`；生成 `dist/`。`build` 不编译 native；`build:native:darwin/linux/win32` 才分别调用 shell 脚本或 `native/win32/build.mjs` |
-| `codemode` | `tsc -p tsconfig.build.json`；生成 `dist/`，并因 `files` 显式包含 `src/cloudflare-modules.d.ts` 而带上 Cloudflare 环境声明。不复制 wasm，wasm 由 `quickjs-wasi` 依赖提供 |
+| `codemode` | `tsc -p tsconfig.build.json`；生成 `dist/`。`tsconfig.build.json` 的 `files` 额外包含 `src/cloudflare-modules.d.ts`，只为编译提供 Cloudflare 模块声明；不复制 wasm，wasm 由 `quickjs-wasi` 依赖提供 |
 | `mcp` | `tsc -p tsconfig.build.json`；生成 `dist/` 及 `index`、`oauth`、`testing` 子路径。不依赖官方 MCP SDK |
 | `ai` | `npm run generate-models` 联网抓取 models.dev、OpenRouter、Vercel AI Gateway、NVIDIA、Radius 等目录，写 `src/models.generated.ts`、`src/providers/*.models.ts`、`src/providers/data/*.json`；随后 `build:offline` 做 `check:model-data`、`tsc`、清空并复制 `dist/providers/data`。根 `build` 走联网版；根 `build:offline` 只走离线部分 |
 | `durable` | `tsc -p tsconfig.build.json`；生成 `dist/` 及 `/env`、`/codemode`、`/storage/*`、`/tools` 等子路径。不复制存储文件，不跑测试 |
