@@ -1,0 +1,67 @@
+﻿%% pi-hunnu-2026 module hierarchy and direct dependencies (commit c3cc916)
+%% Arrow: user --> dependency. Solid = direct runtime dependency. Dashed = optional peer dependency.
+flowchart RL
+  legend["A --> B: A uses B<br/>solid: dependencies<br/>dashed: optional peer<br/>#n: root build order"]:::note
+
+  subgraph L0["L0 foundation: no internal deps"]
+    telemetry["telemetry<br/>#1"]:::layer0
+    schema["schema<br/>#2"]:::layer0
+  end
+
+  subgraph L1["L1 general capabilities"]
+    chord["chord<br/>#3"]:::layer1
+    tui["tui<br/>#4"]:::layer1
+    codemode["codemode<br/>#5"]:::layer1
+    mcp["mcp<br/>#6"]:::layer1
+  end
+
+  subgraph L2["L2 model access"]
+    ai["ai<br/>#7"]:::layer2
+  end
+
+  subgraph L3["L3 orchestration / persistence / remote"]
+    durable["durable<br/>#8"]:::layer3
+    env["env<br/>#9"]:::layer3
+    agent["agent<br/>#10"]:::layer3
+  end
+
+  subgraph L4["L4 application"]
+    codingagent["coding-agent<br/>#11"]:::layer4
+  end
+
+  chord --> schema
+  chord --> telemetry
+  ai --> schema
+  ai --> telemetry
+  durable --> chord
+  durable --> ai
+  durable --> codemode
+  durable --> schema
+  durable --> telemetry
+  env --> chord
+  env --> durable
+  agent --> ai
+  agent --> schema
+  codingagent --> agent
+  codingagent --> ai
+  codingagent --> codemode
+  codingagent --> mcp
+  codingagent --> tui
+
+  chord -. optional peer .-> esbuild(("esbuild"))
+  chord -. optional peer .-> react(("react"))
+  chord -. optional peer .-> ws(("ws"))
+  class esbuild,react,ws ext
+  classDef ext fill:#f5f5f5,stroke:#999,stroke-dasharray: 4 3,color:#666
+  classDef note fill:#fffbe6,stroke:#d4b106,color:#333
+  classDef layer0 fill:#e8f2ff,stroke:#2f6fb0,color:#102a43
+  classDef layer1 fill:#e9f7ef,stroke:#2e8b57,color:#123524
+  classDef layer2 fill:#fff4e5,stroke:#c77700,color:#3d2600
+  classDef layer3 fill:#f3e8ff,stroke:#7b3fb0,color:#2d1745
+  classDef layer4 fill:#ffe8e8,stroke:#b03030,color:#3d1010
+  style L0 fill:#fbfdff,stroke:#9cc3e6
+  style L1 fill:#fbfefc,stroke:#9ed3b5
+  style L2 fill:#fffdf8,stroke:#e6c48a
+  style L3 fill:#fdfaff,stroke:#c6a7df
+  style L4 fill:#fffafa,stroke:#e0a3a3
+
