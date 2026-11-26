@@ -100,7 +100,7 @@ telemetry → schema → chord → tui → codemode → mcp → ai → durable �
 它实际做的工作：
 
 - 依次进入 11 个包，执行各自的 `build`；全部是串行，没有并行，也没有 `tsc -b` 的项目引用增量构建。
-- 对 10 个包，`build` 就是 `tsc -p tsconfig.build.json`，把 `src/**/*.ts` 编译到各自的 `dist/`，同时生成 `.d.ts`、`.d.ts.map`、`.js.map`。
+- 对 9 个包，`build` 就是 `tsc -p tsconfig.build.json`，把 `src/**/*.ts` 编译到各自的 `dist/`，同时生成 `.d.ts`、`.d.ts.map`、`.js.map`；`ai` 和 `coding-agent` 是例外。
 - 对 `ai`，`build` 先联网刷新模型目录，再调用 `build:offline`；后者做数据校验、`tsc`，并把 `src/providers/data` 复制到 `dist/providers/data`。
 - 对 `coding-agent`，先 `tsc`，再给 `cli.js`/`rpc-entry.js` 加可执行位并复制主题、图片、HTML 模板，最后用 esbuild 生成 `dist/bundle` 和启动器。
 - 不执行 `clean`，不执行测试，不构建 `tui` 的 native 插件，不构建 `env` 的 Rust daemon，也不构建 `apps/*`。
@@ -168,9 +168,9 @@ telemetry → schema → chord → tui → codemode → mcp → ai → durable �
 
 ### 3.2 依赖关系图
 
-![模块层级与依赖关系图](assets/module-dependencies.png)
+[![模块层级与依赖关系图](assets/module-dependencies.png)](assets/module-dependencies.png)
 
-*图 6：11 个模块的层级与直接依赖。读法：`A --> B` 表示 A 使用 B；实线为直接依赖，虚线为可选 peer；`#n` 为根 build 顺序。*
+*图 6：11 个模块的层级与直接依赖。读法：`A --> B` 表示 A 使用 B；实线为直接依赖，虚线为可选 peer；`#n` 为根 build 顺序。图较宽，点击图片可查看原始大图；所有边同时列在 3.3 的表中。*
 
 可编辑源文件：[assets/module-dependencies.mmd](assets/module-dependencies.mmd)。该文件用 Mermaid `flowchart RL` 编写，箭头方向与上图一致；`assets/mermaid-config.json` 是渲染配置。
 
