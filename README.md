@@ -115,19 +115,21 @@ telemetry → schema → chord → tui → codemode → mcp → ai → durable �
 
 #### 2.2.1 功能与直接依赖
 
-| 子文件夹 | 代码主要实现什么功能 | 直接依赖哪些内部模块 | 依据文件或代码位置 |
+| 子文件夹 | 代码主要实现什么功能 | 直接依赖哪些内部模块 | 关键依据 |
 |---|---|---|---|
-| `telemetry` | 与厂商无关的 telemetry 契约：`TelemetryContext`/`TelemetrySpan` 回调式 API、NOOP 实现、内存参考实现、计数器/直方图、跨进程 carrier 与 span link、类型化 schema、测试套件 | 无 | `packages/telemetry/package.json:31`；`tsconfig.build.json:4-7`；`src/index.ts:102`；`src/memory.ts:313` |
-| `schema` | JSON Schema builders 与校验器：把 schema 编译成普通闭包，不使用 `eval`；支持 Draft 2020-12/7、format 可选子路径、coercion、JSON Pointer 错误路径；运行时零依赖 | 无 | `packages/schema/package.json:29`、`:50`；`src/validator.ts:14`；`src/compiler.ts` |
-| `chord` | 跨进程对象运行时：contract/facet/host/reference、documents 与事务、derives/jobs、memory/IPC/WebSocket link、store 与 SQLite、插件发现/构建/热重载、HTTP/workers/web/tui surfaces | `schema`、`telemetry` | `packages/chord/package.json:151`、`:172`、`:176-190`；`src/host/host.ts:537`；`src/node/plugins/build.ts:87`；`src/store/store.ts:61` |
-| `tui` | 终端 UI 框架：差分渲染、主屏/备用屏、CSI 2026 同步输出、Component 模型、Editor/Markdown/Image/SelectList 等组件、键绑定、自动补全、鼠标与滚动 | 无 | `packages/tui/package.json:9-12`；`src/tui.ts:504`；`src/tui-main-screen.ts:127`；`src/tui-alt-screen.ts:203` |
-| `codemode` | 在 QuickJS（编译到 WASM）中执行模型写的 JavaScript；只暴露注入的 `tools`；嵌套工具调用不进入 LLM 上下文；提供 Node/Bun、Cloudflare、内联三种 sandbox，以及声明生成和源码解析 | 无 | `packages/codemode/package.json:46`；`src/runtime/host.ts:84`；`src/runtime/execution.ts:460`；`src/runtime/remote.ts:273` |
-| `mcp` | 独立的 Model Context Protocol 客户端：JSON-RPC 关联、初始化、超时/取消；stdio、Streamable HTTP、Pipe、内存测试 transport；OAuth；工具 schema 归一化和输出限长 | 无 | `packages/mcp/package.json:34`；`src/client.ts:155`；`src/transports/stdio.ts:69`；`src/transports/streamable-http.ts:248` |
-| `ai` | 多 provider 的统一 LLM API：provider 工厂、模型目录、认证解析、流式事件、工具调用/参数校验、图片/分类、token 与成本、telemetry | `schema`、`telemetry` | `packages/ai/package.json:72-77`；`catalog/generate.ts`；`catalog/sources/index.ts`；`src/models.ts:1059` |
-| `durable` | 持久化 agent harness：conversation/turn/tool/task 在展示前先提交；崩溃后 `resume()` 从 checkpoint 继续；Chord document 状态、Memory/IndexedDB/JSONL/SQLite 存储；`ExecutionEnv` 接口、Code Mode、compaction/hooks/fork | `chord`、`ai`、`codemode`、`schema`、`telemetry` | `packages/durable/package.json:133`、`:166`；`src/harness/harness.ts:611-613`；`src/env/index.ts:377` |
-| `env` | Pi Durable 的远程执行环境：通过 SSH 连接远端，部署并校验 Rust daemon；`RemoteExecutionEnv` 把文件、命令、终端、watch 操作转发到远端；含 host key 校验和 daemon SHA-256 校验 | `chord`、`durable`（`/env` 子路径） | `packages/env/package.json:26`、`:47`；`src/remote-env.ts:354`；`src/connection.ts:229`；`src/ssh.ts:535` |
-| `agent` | 有状态 agent 核心：维护 `AgentMessage[]`、系统提示和工具状态；`Agent` 封装 prompt/continue/abort；`agentLoop` 负责流式事件、工具调用、steering/follow-up；只在大模型调用边界转换成 LLM message | `ai`、`schema` | `packages/agent/package.json:21`、`:25`；`src/agent.ts:194`；`src/agent-loop.ts:111`；`src/types.ts:17` |
-| `coding-agent` | 面向用户的 coding agent：CLI 参数、交互式 TUI、print/RPC 模式、`AgentSession` 与 `SessionManager`、扩展/技能/主题、内置工具、provider 登录、MCP 与 codemode 集成、SDK 导出 | `agent`、`ai`、`codemode`、`mcp`、`tui` | `packages/coding-agent/package.json:33-36`；`src/main.ts:611`；`src/core/sdk.ts:2`；`src/core/agent-session.ts:409`；`scripts/build-coding-agent-bundle.mjs` |
+| `telemetry` | 遥测契约、NOOP/内存实现、指标与类型化 schema | 无 | `package.json:31`；`src/index.ts:102` |
+| `schema` | 无 `eval` 的 JSON Schema builders/编译器，支持 2020-12/7 与可选 formats | 无 | `package.json:29`；`src/validator.ts:14` |
+| `chord` | 跨进程对象运行时、文档/存储、插件热重载与多端 surface | `schema`、`telemetry` | `package.json:172`；`src/host/host.ts:537` |
+| `tui` | 差分渲染终端 UI、主/备用屏、组件与键绑定 | 无 | `package.json:9`；`src/tui.ts:504` |
+| `codemode` | QuickJS/WASM 沙箱执行模型 JS，只暴露注入的 tools | 无 | `package.json:46`；`src/runtime/host.ts:84` |
+| `mcp` | 独立 MCP 客户端，JSON-RPC 与 stdio/HTTP/Pipe transport | 无 | `package.json:34`；`src/client.ts:155` |
+| `ai` | 多 provider 统一 LLM API、认证、流式、工具与模型目录 | `schema`、`telemetry` | `package.json:76`；`src/models.ts:1059` |
+| `durable` | 持久化 conversation/task harness，崩溃恢复与多存储 | `chord`、`ai`、`codemode`、`schema`、`telemetry` | `package.json:166`；`src/harness/harness.ts:613` |
+| `env` | SSH 远程 `ExecutionEnv` 与 Rust daemon | `chord`、`durable` | `package.json:47`；`src/remote-env.ts:354` |
+| `agent` | 有状态 agent 循环、工具调用、事件流与 steering | `ai`、`schema` | `package.json:25`；`src/agent.ts:194` |
+| `coding-agent` | CLI/TUI/RPC coding agent、会话/扩展/工具 | `agent`、`ai`、`codemode`、`mcp`、`tui` | `package.json:43`；`src/core/sdk.ts:2` |
+
+表中依据均相对仓库根目录，行号以 commit `c3cc916` 为准；更完整的 build/实现位置见 2.2.2 与 6. 复核清单。
 
 #### 2.2.2 build 执行与产物
 
